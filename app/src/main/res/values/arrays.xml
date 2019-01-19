@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="drop_down">
+        <item>Store Alun-Alun</item>
+        <item>Store Sarinah JKT</item>
+        <item>Store Sarinah BDG</item>
+    </string-array>
+</resources>
