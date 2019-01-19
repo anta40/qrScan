@@ -7,16 +7,28 @@
     android:orientation="vertical">
 
 
-
-
-
     <Button
         android:id="@+id/btn_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:text="Scan QR"
-        android:layout_margin="130dp"/>
+        android:layout_margin="20dp"/>
 
+    <Button
+        android:id="@+id/btn_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="Login Info"
+        android:layout_margin="20dp"/>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="Log Out"
+        android:layout_margin="20dp"/>
 
 </LinearLayout>
