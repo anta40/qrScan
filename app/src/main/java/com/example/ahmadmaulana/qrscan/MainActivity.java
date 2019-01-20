@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.google.zxing.Result;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnScan, btnLoginInfo, btnLogout;
     TextView tv;
     SessionManager session;
+    ImageView main_img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         btnLoginInfo = (Button) findViewById(R.id.btn_info);
         btnLogout = (Button) findViewById(R.id.btn_logout);
         tv = (TextView) findViewById(R.id.tv);
+        main_img = (ImageView) findViewById(R.id.main_img);
 
         session = new SessionManager(getApplicationContext());
 
@@ -98,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        String img_url = "https://vignette.wikia.nocookie.net/adventuretimewithfinnandjake/images/8/82/Piq_21633_400x400.png";
+        Picasso.get().load(img_url).into(main_img);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -113,4 +119,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 }

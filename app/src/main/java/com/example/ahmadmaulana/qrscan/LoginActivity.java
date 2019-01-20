@@ -51,6 +51,12 @@ public class LoginActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
 
         session = new SessionManager(getApplicationContext());
+        if (session.isLoggedIn()){
+            Intent iii = new Intent(LoginActivity.this, MainActivity.class);
+          //  iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //iii.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(iii);
+        }
 
         Nama = (EditText) findViewById(R.id.etNama);
         Password = (EditText) findViewById(R.id.etPassword);
