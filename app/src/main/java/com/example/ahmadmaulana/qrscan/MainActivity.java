@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnScan, btnLoginInfo, btnLogout;
     TextView tv;
     SessionManager session;
-    ImageView main_img;
+    DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,17 +38,23 @@ public class MainActivity extends AppCompatActivity {
         btnLoginInfo = (Button) findViewById(R.id.btn_info);
         btnLogout = (Button) findViewById(R.id.btn_logout);
         tv = (TextView) findViewById(R.id.tv);
-        main_img = (ImageView) findViewById(R.id.main_img);
+      //  main_img = (ImageView) findViewById(R.id.main_img);
+
+        db = new DBHelper(this);
 
         session = new SessionManager(getApplicationContext());
 
         btnScan.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-              //  IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this, CheckoutActivity.class);
                 IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
                 scanIntegrator.setOrientationLocked(false);
                 scanIntegrator.initiateScan();
+
+                //db.insertProduk2(new Product2("hhhhhh","aaaaaaaa",5000));
+
+                //Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
+                //startActivity(iii);
             }
 
         });
@@ -56,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         btnLoginInfo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+                /*
                 HashMap<String, String> detail = session.getLoginDetail();
                 String token = detail.get(session.KEY_TOKEN);
                 String location = detail.get(session.KEY_LOCATION);
@@ -73,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
                 AlertDialog dialog = alertDialogBuilder.create();
                 dialog.show();
+                */
+                db.clearTable();
             }
 
         });
@@ -102,15 +111,37 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        String img_url = "https://vignette.wikia.nocookie.net/adventuretimewithfinnandjake/images/8/82/Piq_21633_400x400.png";
-        Picasso.get().load(img_url).into(main_img);
+       // String img_url = "https://vignette.wikia.nocookie.net/adventuretimewithfinnandjake/images/8/82/Piq_21633_400x400.png";
+        //Picasso.get().load(img_url).into(main_img);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanningResult != null) {
             String scanContent = scanningResult.getContents();
-            tv.setText(scanContent);
+            //Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
+           //iii.putExtra("scan_result",scanContent);
+            //startActivity(iii);
+            //Toast.makeText(getApplicationContext(), "Isi QR code: "+scanContent, Toast.LENGTH_SHORT).show();
+
+            String[] strs = scanContent.split("\\n");
+
+            String imgUrl = strs[1].replace("FN:","");
+            String location = strs[2].replace("FN:","");
+            int price = Integer.parseInt(strs[3].replace("TEL;WORK;VOICE:",""));
+
+            String slen = ""+imgUrl.length();
+            Product2 prod = new Product2(slen, location, price);
+           // if (!db.isExist2(prod)){
+            db.insertProduk2(prod);
+            //}
+
+            Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
+            //iii.putExtra("prod_url", prod.getUrl());
+            //iii.putExtra("prod_location", prod.getLokasi());
+            //iii.putExtra("prod_price", prod.getHarga());
+            startActivity(iii);
+
         }
         else {
             Toast toast = Toast.makeText(getApplicationContext(),

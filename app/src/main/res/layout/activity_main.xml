@@ -6,15 +6,7 @@
     android:weightSum="5"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/main_img"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
-
-        />
-
-
-    <Button
+     <Button
         android:id="@+id/btn_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
