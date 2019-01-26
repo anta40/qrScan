@@ -3,6 +3,7 @@ package com.example.ahmadmaulana.qrscan;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private Spinner spinner;
     SessionManager session;
     private final String BASE_URL = "http://dapuromiyago.com/public/api/login";
+    private DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +55,19 @@ public class LoginActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
+        db = new DBHelper(this);
+
         session = new SessionManager(getApplicationContext());
         if (session.isLoggedIn()){
-            Intent iii = new Intent(LoginActivity.this, MainActivity.class);
+           // Intent iii = new Intent(LoginActivity.this, MainActivity.class);
           //  iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             //iii.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(iii);
+            //startActivity(iii);
+
+            IntentIntegrator scanIntegrator = new IntentIntegrator(LoginActivity.this);
+            scanIntegrator.setOrientationLocked(false);
+            scanIntegrator.initiateScan();
+
         }
 
         Nama = (EditText) findViewById(R.id.etNama);
@@ -155,9 +167,12 @@ public class LoginActivity extends AppCompatActivity {
                     String location = spinner.getSelectedItem().toString();
 
                     session.createLoginSession(token, location);
-                    Intent iii = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(iii);
-                    finish();
+                    //Intent iii = new Intent(LoginActivity.this, MainActivity.class);
+                    //startActivity(iii);
+                    //finish();
+                    IntentIntegrator scanIntegrator = new IntentIntegrator(LoginActivity.this);
+                    scanIntegrator.setOrientationLocked(false);
+                    scanIntegrator.initiateScan();
                 }
                 catch (JSONException je) {
                     je.printStackTrace();
@@ -179,6 +194,26 @@ public class LoginActivity extends AppCompatActivity {
                 dialog.show();
             }
 
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (scanningResult != null){
+            String scanContent = scanningResult.getContents();
+            String[] strs = scanContent.split("\\n");
+
+            String imgUrl = strs[1].replace("FN:","");
+            String location = strs[2].replace("FN:","");
+            int price = Integer.parseInt(strs[3].replace("TEL;WORK;VOICE:",""));
+
+            String slen = ""+imgUrl.length();
+            Product2 prod = new Product2(slen, location, price);
+            db.insertProduk2(prod);
+
+            Intent iii = new Intent(LoginActivity.this, ScanResultActivity.class);
+            startActivity(iii);
         }
     }
 
