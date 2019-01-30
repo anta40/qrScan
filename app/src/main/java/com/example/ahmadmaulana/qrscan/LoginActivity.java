@@ -59,15 +59,10 @@ public class LoginActivity extends AppCompatActivity {
 
         session = new SessionManager(getApplicationContext());
         if (session.isLoggedIn()){
-           // Intent iii = new Intent(LoginActivity.this, MainActivity.class);
-          //  iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //iii.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //startActivity(iii);
-
-            IntentIntegrator scanIntegrator = new IntentIntegrator(LoginActivity.this);
-            scanIntegrator.setOrientationLocked(false);
-            scanIntegrator.initiateScan();
-
+            Intent iii = new Intent(LoginActivity.this, MainActivity.class);
+            iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            iii.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(iii);
         }
 
         Nama = (EditText) findViewById(R.id.etNama);
@@ -77,13 +72,19 @@ public class LoginActivity extends AppCompatActivity {
         Login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  validate(Nama.getText().toString(),
-              //          Password.getText().toString());
-
                new LoginTask(Nama.getText().toString(), Password.getText().toString()).execute();
+
+               /*
+               if (Nama.getText().toString().equals("dangridho@ymail.com") && Password.getText().toString().equals("dangdo")) {
+                    session.createLoginSession("dangridho@ymail.com", "dangdo");
+                    Intent iii = new Intent(LoginActivity.this, MainActivity.class);
+                    iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    iii.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(iii);
+                }
+                */
             }
         });
-
     }
 
     private void validate(String userNama, String userPassword) {
@@ -158,8 +159,6 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            //Toast.makeText(getApplicationContext(), ">>> "+s, Toast.LENGTH_SHORT).show();
-
             if (isOK(s)) {
                 try {
                     JSONObject jsObj = new JSONObject(s);
@@ -167,12 +166,9 @@ public class LoginActivity extends AppCompatActivity {
                     String location = spinner.getSelectedItem().toString();
 
                     session.createLoginSession(token, location);
-                    //Intent iii = new Intent(LoginActivity.this, MainActivity.class);
-                    //startActivity(iii);
-                    //finish();
-                    IntentIntegrator scanIntegrator = new IntentIntegrator(LoginActivity.this);
-                    scanIntegrator.setOrientationLocked(false);
-                    scanIntegrator.initiateScan();
+                    Intent iii = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(iii);
+                    finish();
                 }
                 catch (JSONException je) {
                     je.printStackTrace();
@@ -197,25 +193,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (scanningResult != null){
-            String scanContent = scanningResult.getContents();
-            String[] strs = scanContent.split("\\n");
 
-            String imgUrl = strs[1].replace("FN:","");
-            String location = strs[2].replace("FN:","");
-            int price = Integer.parseInt(strs[3].replace("TEL;WORK;VOICE:",""));
-
-            String slen = ""+imgUrl.length();
-            Product2 prod = new Product2(slen, location, price);
-            db.insertProduk2(prod);
-
-            Intent iii = new Intent(LoginActivity.this, ScanResultActivity.class);
-            startActivity(iii);
-        }
-    }
 
     private static boolean isOK(String input) {
         return input.contains("\"success\":\"success\"");

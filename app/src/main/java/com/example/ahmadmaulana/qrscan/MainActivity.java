@@ -50,11 +50,6 @@ public class MainActivity extends AppCompatActivity {
                 IntentIntegrator scanIntegrator = new IntentIntegrator(MainActivity.this);
                 scanIntegrator.setOrientationLocked(false);
                 scanIntegrator.initiateScan();
-
-                //db.insertProduk2(new Product2("hhhhhh","aaaaaaaa",5000));
-
-                //Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
-                //startActivity(iii);
             }
 
         });
@@ -126,17 +121,24 @@ public class MainActivity extends AppCompatActivity {
 
             String[] strs = scanContent.split("\\n");
 
-            String imgUrl = strs[1].replace("FN:","");
-            String location = strs[2].replace("FN:","");
-            int price = Integer.parseInt(strs[3].replace("TEL;WORK;VOICE:",""));
+            int id = Integer.parseInt(strs[1].replace("FN:",""));
+            String url = strs[2].replace("FN:","");
+            String nama = strs[3].replace("FN:","");
+            int hargaJual = Integer.parseInt(strs[4].replace("FN:",""));
+            int hargaBeli = Integer.parseInt(strs[5].replace("FN:",""));
 
-            String slen = ""+imgUrl.length();
-            Product2 prod = new Product2(slen, location, price);
-           // if (!db.isExist2(prod)){
-            db.insertProduk2(prod);
-            //}
+            if (db.isExist(id)){
+                db.tambahJumlahProduk(id);
+            }
+            else {
+                db.insertProduct(new Product(id, url, nama, hargaJual, hargaBeli, 1));
+            }
 
             Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
+            //iii.putExtra("scan_result", scanContent);
+         //   Bundle bnd = new Bundle();
+           // bnd.putStringArray("scan_result", strs);
+            //iii.putExtras(bnd);
             //iii.putExtra("prod_url", prod.getUrl());
             //iii.putExtra("prod_location", prod.getLokasi());
             //iii.putExtra("prod_price", prod.getHarga());

@@ -17,23 +17,31 @@ import java.util.List;
 public class ScanResultActivity extends AppCompatActivity {
 
     private RecyclerView recView;
-    private Product2Adapter mAdapter;
+    private ProductAdapter mAdapter;
     private DBHelper db;
-    private List<Product2> product2List;
+    private List<Product> productList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_result);
 
-        Bundle bundle = getIntent().getExtras();
+       // Bundle bundle = getIntent().getExtras();
+        //String[] aaa = bundle.getStringArray("scan_result");
+
+        //Toast.makeText(getApplicationContext(), aaa[1].replace("FN:","")+" "+aaa[2].replace("FN:","")+
+          //      " "+aaa[3].replace("FN:","")+" "+aaa[4].replace("FN:","")
+            //    +" "+aaa[5].replace("FN:",""), Toast.LENGTH_LONG).show();
+
         recView = (RecyclerView) findViewById(R.id.recycler_view);
-        product2List = new ArrayList<>();
+        productList = new ArrayList<>();
+
+
 
         db = new DBHelper(this);
-        product2List.addAll(db.getAllProducts2());
+        productList.addAll(db.getAllProducts());
 
-        mAdapter = new Product2Adapter(this, product2List);
+        mAdapter = new ProductAdapter(this, productList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recView.setLayoutManager(mLayoutManager);
         recView.setItemAnimator(new DefaultItemAnimator());
@@ -43,6 +51,10 @@ public class ScanResultActivity extends AppCompatActivity {
         //String location = bundle.getString("prod_location");
         //int price = bundle.getInt("prod_price");
         //Toast.makeText(getApplicationContext(),url+" "+location+" "+price, Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

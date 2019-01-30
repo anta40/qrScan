@@ -28,7 +28,8 @@ public class DBHelper extends SQLiteOpenHelper {
        // CREATE_TABLE_CMD = "CREATE TABLE IF NOT EXISTS tbl_produk(nama VARCHAR PRIMARY KEY, kategori VARCHAR, " +
          //       "hargaAwal INTEGER, hargaAkhir INTEGER, jumlah INTEGER);";
 
-        CREATE_TABLE_CMD = "CREATE TABLE IF NOT EXISTS tbl_produk(url VARCHAR, lokasi VARCHAR, harga INTEGER);";
+        CREATE_TABLE_CMD = "CREATE TABLE IF NOT EXISTS tbl_produk(id_produk INTEGER, url VARCHAR, nama VARCHAR, " +
+                "harga_jual INTEGER, harga_beli INTEGER, jumlah INTEGER);";
     }
 
     @Override
@@ -66,10 +67,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public long insertProduct(Product product){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put("id_produk", product.getId());
+        values.put("url", product.getUrl());
         values.put("nama", product.getNama());
-        values.put("kategori", product.getKategori());
-        values.put("hargaAwal", product.getHargaAwal());
-        values.put("hargaAkhir", product.getHargaAkhir());
+        values.put("harga_jual", product.getHargaJual());
+        values.put("harga_beli", product.getHargaBeli());
         values.put("jumlah", product.getJumlah());
 
         long id = db.insert("tbl_produk", null, values);
@@ -78,21 +80,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public void update(Product product){
+    public void tambahJumlahProduk(int id){
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * WHERE jumlah="+product.getJumlah();
+        String query = "UPDATE tbl_produk SET jumlah = jumlah + 1 WHERE id_produk = "+id;
+        db.execSQL(query);
+        db.close();
+    }
 
-        Cursor mCursor = db.rawQuery(query, null);
-
-        if (mCursor != null) mCursor.moveToFirst();
-        Product prod = new Product(mCursor.getString(0), mCursor.getString(1),
-                mCursor.getInt(2), mCursor.getInt(3), mCursor.getInt(4));
-        int jumlahBaru = prod.getJumlah() + 1;
-
-        String newQuery = "UPDATE tbl_produk SET jumlah="+jumlahBaru+" WHERE nama='"+ product.getNama()+"'";
-        db.execSQL(newQuery);
-
-        mCursor.close();
+    public void kurangiJumlahProduk(int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE tbl_produk SET jumlah = jumlah - 1 WHERE id_produk = "+id;
+        db.execSQL(query);
         db.close();
     }
 
@@ -110,10 +108,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public boolean isExist(Product product){
+    public boolean isExist(int id){
         boolean result = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT nama FROM tbl_produk WHERE nama='"+product.getNama()+"'";
+        String query = "SELECT nama FROM tbl_produk WHERE id_produk="+id;
         Cursor mCursor = db.rawQuery(query, null);
 
         if (mCursor.getCount() > 0) result = true;
@@ -136,6 +134,31 @@ public class DBHelper extends SQLiteOpenHelper {
                 String lokasi = mCursor.getString(mCursor.getColumnIndex("lokasi"));
                 int harga = mCursor.getInt(mCursor.getColumnIndex("harga"));
                 Product2 prod = new Product2(url, lokasi, harga);
+                prods.add(prod);
+
+            } while (mCursor.moveToNext());
+        }
+
+        db.close();
+
+        return prods;
+    }
+
+    public List<Product> getAllProducts(){
+        List<Product> prods = new ArrayList<>();
+        String query = "SELECT * FROM tbl_produk";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor mCursor = db.rawQuery(query, null);
+
+        if (mCursor.moveToFirst()){
+            do {
+                String url = mCursor.getString(mCursor.getColumnIndex("url"));
+                String nama = mCursor.getString(mCursor.getColumnIndex("nama"));
+                int jumlah= mCursor.getInt(mCursor.getColumnIndex("jumlah"));
+                int id = mCursor.getInt(mCursor.getColumnIndex("id_produk"));
+                int hargaJual = mCursor.getInt(mCursor.getColumnIndex("harga_jual"));
+                int hargaBeli = mCursor.getInt(mCursor.getColumnIndex("harga_beli"));
+                Product prod = new Product(id, url, nama,  hargaJual, hargaBeli, jumlah);
                 prods.add(prod);
 
             } while (mCursor.moveToNext());
