@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.Image;
+import android.se.omapi.Session;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +19,9 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         btnScan = (Button) findViewById(R.id.btn_scan);
-        btnLoginInfo = (Button) findViewById(R.id.btn_info);
-        btnLogout = (Button) findViewById(R.id.btn_logout);
+       // btnLoginInfo = (Button) findViewById(R.id.btn_info);
+        //btnLogout = (Button) findViewById(R.id.btn_logout);
         tv = (TextView) findViewById(R.id.tv);
       //  main_img = (ImageView) findViewById(R.id.main_img);
 
@@ -54,10 +58,11 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        /*
         btnLoginInfo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                /*
+
                 HashMap<String, String> detail = session.getLoginDetail();
                 String token = detail.get(session.KEY_TOKEN);
                 String location = detail.get(session.KEY_LOCATION);
@@ -75,12 +80,14 @@ public class MainActivity extends AppCompatActivity {
 
                 AlertDialog dialog = alertDialogBuilder.create();
                 dialog.show();
-                */
+
                 db.clearTable();
             }
 
         });
+        */
 
+        /*
         btnLogout.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -105,20 +112,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
-       // String img_url = "https://vignette.wikia.nocookie.net/adventuretimewithfinnandjake/images/8/82/Piq_21633_400x400.png";
-        //Picasso.get().load(img_url).into(main_img);
+        */
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanningResult != null) {
             String scanContent = scanningResult.getContents();
-            //Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
-           //iii.putExtra("scan_result",scanContent);
-            //startActivity(iii);
-            //Toast.makeText(getApplicationContext(), "Isi QR code: "+scanContent, Toast.LENGTH_SHORT).show();
-
             String[] strs = scanContent.split("\\n");
 
             int id = Integer.parseInt(strs[1].replace("FN:",""));
@@ -131,17 +131,12 @@ public class MainActivity extends AppCompatActivity {
                 db.tambahJumlahProduk(id);
             }
             else {
-                db.insertProduct(new Product(id, url, nama, hargaJual, hargaBeli, 1));
+                HashMap<String, String> loginInfo = session.getLoginDetail();
+                int location = Integer.parseInt(loginInfo.get(SessionManager.KEY_LOCATION_ID));
+                db.insertProduct(new Product(id, url, nama, hargaJual, hargaBeli, 1, getCurrentDate(), location));
             }
 
             Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
-            //iii.putExtra("scan_result", scanContent);
-         //   Bundle bnd = new Bundle();
-           // bnd.putStringArray("scan_result", strs);
-            //iii.putExtras(bnd);
-            //iii.putExtra("prod_url", prod.getUrl());
-            //iii.putExtra("prod_location", prod.getLokasi());
-            //iii.putExtra("prod_price", prod.getHarga());
             startActivity(iii);
 
         }
@@ -155,5 +150,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
+    }
+
+    private String getCurrentDate(){
+        String result = "";
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = new Date();
+        result = dateFormat.format(date);
+        return result;
     }
 }

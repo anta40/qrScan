@@ -19,7 +19,7 @@ public class SessionManager {
 
     private static final String IS_LOGIN = "IsLoggedIn";
     public static final String KEY_TOKEN = "token";
-    public static final String KEY_LOCATION = "location";
+    public static final String KEY_LOCATION_ID = "location_id";
 
     public SessionManager(Context context){
         this.context = context;
@@ -27,10 +27,10 @@ public class SessionManager {
         editor = pref.edit();
     }
 
-    public void createLoginSession(String token, String location){
+    public void createLoginSession(String token, String location_id){
         editor.putBoolean(IS_LOGIN, true);
         editor.putString(KEY_TOKEN, token);
-        editor.putString(KEY_LOCATION, location);
+        editor.putString(KEY_LOCATION_ID, location_id);
         editor.commit();
     }
 
@@ -41,7 +41,7 @@ public class SessionManager {
     public HashMap<String, String> getLoginDetail(){
         HashMap<String, String> detail = new HashMap<String, String>();
         detail.put(KEY_TOKEN, pref.getString(KEY_TOKEN, null));
-        detail.put(KEY_LOCATION, pref.getString(KEY_LOCATION, null));
+        detail.put(KEY_LOCATION_ID, pref.getString(KEY_LOCATION_ID, null));
         return detail;
     }
 

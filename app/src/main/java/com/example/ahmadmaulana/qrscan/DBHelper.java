@@ -29,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
          //       "hargaAwal INTEGER, hargaAkhir INTEGER, jumlah INTEGER);";
 
         CREATE_TABLE_CMD = "CREATE TABLE IF NOT EXISTS tbl_produk(id_produk INTEGER, url VARCHAR, nama VARCHAR, " +
-                "harga_jual INTEGER, harga_beli INTEGER, jumlah INTEGER);";
+                "harga_jual INTEGER, harga_beli INTEGER, jumlah INTEGER, tanggal VARCHAR, lokasi INTEGER);";
     }
 
     @Override
@@ -73,6 +73,8 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("harga_jual", product.getHargaJual());
         values.put("harga_beli", product.getHargaBeli());
         values.put("jumlah", product.getJumlah());
+        values.put("tanggal", product.getDate());
+        values.put("lokasi", product.getLocation());
 
         long id = db.insert("tbl_produk", null, values);
         db.close();
@@ -158,7 +160,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 int id = mCursor.getInt(mCursor.getColumnIndex("id_produk"));
                 int hargaJual = mCursor.getInt(mCursor.getColumnIndex("harga_jual"));
                 int hargaBeli = mCursor.getInt(mCursor.getColumnIndex("harga_beli"));
-                Product prod = new Product(id, url, nama,  hargaJual, hargaBeli, jumlah);
+                String date = mCursor.getString(mCursor.getColumnIndex("tanggal"));
+                int loc = mCursor.getInt(mCursor.getColumnIndex("lokasi"));
+                Product prod = new Product(id, url, nama,  hargaJual, hargaBeli, jumlah, date, loc);
                 prods.add(prod);
 
             } while (mCursor.moveToNext());

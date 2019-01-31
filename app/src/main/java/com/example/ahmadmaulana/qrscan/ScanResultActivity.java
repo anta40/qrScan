@@ -1,18 +1,32 @@
 package com.example.ahmadmaulana.qrscan;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//import ezvcard.Ezvcard;
-//import ezvcard.VCard;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ScanResultActivity extends AppCompatActivity {
 
@@ -20,41 +34,181 @@ public class ScanResultActivity extends AppCompatActivity {
     private ProductAdapter mAdapter;
     private DBHelper db;
     private List<Product> productList;
-
+    private Product selectedProduct;
+    private Button btnCheckout;
+    
+    //TODO untuk load image, full URL: http://dapuromiyago.com/gambar_produk/<nama file>
+        
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_result);
-
-       // Bundle bundle = getIntent().getExtras();
-        //String[] aaa = bundle.getStringArray("scan_result");
-
-        //Toast.makeText(getApplicationContext(), aaa[1].replace("FN:","")+" "+aaa[2].replace("FN:","")+
-          //      " "+aaa[3].replace("FN:","")+" "+aaa[4].replace("FN:","")
-            //    +" "+aaa[5].replace("FN:",""), Toast.LENGTH_LONG).show();
-
         recView = (RecyclerView) findViewById(R.id.recycler_view);
         productList = new ArrayList<>();
-
-
 
         db = new DBHelper(this);
         productList.addAll(db.getAllProducts());
 
-        mAdapter = new ProductAdapter(this, productList);
+        btnCheckout = (Button) findViewById(R.id.btn_checkout);
+
+        mAdapter = new ProductAdapter(this, productList, new ProductAdapter.MyClickListener() {
+            @Override
+            public void onIncrement(View v, int position) {
+
+            }
+
+            @Override
+            public void onDecrement(View v, int position) {
+
+            }
+        });
+
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recView.setLayoutManager(mLayoutManager);
         recView.setItemAnimator(new DefaultItemAnimator());
         recView.addItemDecoration(new MyDividerItemDecoration(this, LinearLayoutManager.VERTICAL, 16));
         recView.setAdapter(mAdapter);
-       // String url = bundle.getString("prod_url");
-        //String location = bundle.getString("prod_location");
-        //int price = bundle.getInt("prod_price");
-        //Toast.makeText(getApplicationContext(),url+" "+location+" "+price, Toast.LENGTH_SHORT).show();
+
+        btnCheckout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                Product prod = productList.get(0);
+
+                try {
+                    JSONObject jo = new JSONObject();
+                    jo.put("id_produk",""+prod.getId());
+                    jo.put("tanggal_order",prod.getDate());
+                    jo.put("id_lokasi",prod.getLocation());
+                    jo.put("qty", prod.getJumlah());
+                    jo.put("harga_jual",prod.getHargaJual());
+                    jo.put("harga_beli",prod.getHargaBeli());
+
+                    String data = jo.toString();
+                    new CheckoutTask(prod.getId(), prod.getDate(), prod.getHargaJual(), prod.getHargaBeli(),
+                            prod.getJumlah(), prod.getLocation()).execute();
+                }
+                catch (JSONException je){
+                    je.printStackTrace();
+                }
+            }
+        });
+
     }
 
     @Override
     public void onBackPressed() {
         finish();
+    }
+
+    class CheckoutTask extends AsyncTask<String, Void, String>{
+
+        private String responseServer;
+        private String dataToBePosted;
+        private int id, hjual, hbeli, qty, id_lok;
+        private String tgl;
+
+        public CheckoutTask(int id, String tgl, int hjual, int hbeli, int qty, int id_lok ){
+            this.id = id;
+            this.tgl = tgl;
+            this.hjual = hjual;
+            this.hbeli = hbeli;
+            this.qty = qty;
+            this.id_lok = id_lok;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            responseServer = "";
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            OkHttpClient httpClient = new OkHttpClient();
+
+            //RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), dataToBePosted);
+
+            RequestBody reqBody = new FormBody.Builder()
+                    .add("id_produk", ""+id)
+                    .add("tanggal_order", tgl)
+                    .add("harga_jual", ""+hjual)
+                    .add("harga_beli", ""+hbeli)
+                    .add("qty", ""+qty)
+                    .add("id_lokasi", ""+id_lok)
+                    .build();
+
+            Request httpRequest = new Request.Builder()
+                    .url(URLConfig.API_ORDER)
+                    .addHeader("Accept","application/json")
+                    .addHeader("Content-Type","application/json")
+                    .addHeader("Authorization",PrefUtil.AUTH_BEARER)
+                    .post(reqBody)
+                    .build();
+
+            Response httpResponse = null;
+
+            try {
+                httpResponse = httpClient.newCall(httpRequest).execute();
+            }
+            catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+
+            try {
+                if (httpResponse != null){
+                    responseServer = httpResponse.body().string();
+                }
+            }
+            catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+
+            return responseServer;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            if (isOK(s)){
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
+                alertDialogBuilder.setTitle("qrScan");
+                alertDialogBuilder
+                        .setMessage("Checkout berhasil")
+                        .setCancelable(true)
+                        .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                db.clearTable();
+                                Intent iii = new Intent(ScanResultActivity.this, MainActivity.class);
+                                iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(iii);
+                            }
+                        });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            }
+            else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
+                alertDialogBuilder.setTitle("qrScan");
+                alertDialogBuilder
+                        .setMessage("Gagal melakukan checkout")
+                        .setCancelable(true)
+                        .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            }
+
+        }
+    }
+
+    private boolean isOK(String input) {
+        return input.toLowerCase().contains("\"success\"");
     }
 }

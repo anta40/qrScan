@@ -38,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
     private int counter = 5;
     private Spinner spinner;
     SessionManager session;
-    private final String BASE_URL = "http://dapuromiyago.com/public/api/login";
     private DBHelper db;
 
     @Override
@@ -127,10 +126,10 @@ public class LoginActivity extends AppCompatActivity {
                     .build();
 
             Request httpRequest = new Request.Builder()
-                    .url(BASE_URL)
+                    .url(URLConfig.API_LOGIN)
                     .addHeader("Accept","application/json")
-                    .addHeader("Content-Type","application/x-www-form-urlencoded")
-                    .addHeader("Authorization","Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjlhZjU2MDcyODk1YzY2NDg2MjQ3YmZhODU3MTNjMWY3ZWJmZDdkN2ZiMGUwYjJiNzkzYTY2ZmY2YjlhZjhhYmM3YjNlYTI2ZmY4ZjcyY2E4In0.eyJhdWQiOiIxIiwianRpIjoiOWFmNTYwNzI4OTVjNjY0ODYyNDdiZmE4NTcxM2MxZjdlYmZkN2Q3ZmIwZTBiMmI3OTNhNjZmZjZiOWFmOGFiYzdiM2VhMjZmZjhmNzJjYTgiLCJpYXQiOjE1NDc1MzgyNjEsIm5iZiI6MTU0NzUzODI2MSwiZXhwIjoxNTc5MDc0MjYxLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.xe3w305a9QrJbNGcW87Ndv3-V6-yTCFvUBR2CuFHzMDP33TbbXiHEGmnjdwsly1w-oY-El3AMHCjFA8StxJ_2DRrrNRCJzYf34MoYT53y79ZdzviKd6E8UtTkrJJeahCRZwgt8XXJA-oGYZu8jNTE7dfH7nN6i0stK1CIAF6Aah77g3G5Rjt17KMZ16fHCcDnZevvLdRncGIWQtL8KSI2YbddEQbXKIqFxFE1LPWE4wD9TwEZW-uJjeLlPb_7lrNYkOV7bKM8272Vr5VDdC5asdewhdf9afhxHdozbKOqblKbhoOgy4VA6JhRLEPAqUONLEV5a_Z8RrZrvSduFHPv85NY4VRuTmpFVIFlzKn_8HkmqEbuzq3WPlX8682X3xxvp31y-LC4sFrutNUCfnXgg4NJBvpqh3033RLaMlxphT5vOwkIa5UDIfy4Y3GJ5PzcaAG3ev1z9HAGR52wO94HasGpcIMGyuOkrgezxnZAshyZTMvvDtdBk74_pednsxDJ4eDg_WjAciEfZbB9peTjI4gt7cF6oSt8FCBM_SOFWplJ0bgJjXukbZaKcq1UA1iSlABMzhUYecPACa24_OxG3xG4bExGsomwzvkaFj-HMl5GomqKGWeLM1EM75PEVOcSLtRGIlJyO_NDXJwFiS2uBCatlplT8IpYj-In3i4R0Q")
+                    .addHeader("Content-Type","application/json")
+                    .addHeader("Authorization",PrefUtil.AUTH_BEARER)
                     .post(reqBody)
                     .build();
 
@@ -163,9 +162,9 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     JSONObject jsObj = new JSONObject(s);
                     String token = jsObj.get("token").toString();
-                    String location = spinner.getSelectedItem().toString();
+                    String location_id = ""+spinner.getSelectedItemPosition();
 
-                    session.createLoginSession(token, location);
+                    session.createLoginSession(token, location_id);
                     Intent iii = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(iii);
                     finish();
