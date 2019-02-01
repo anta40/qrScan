@@ -36,6 +36,7 @@ public class ScanResultActivity extends AppCompatActivity {
     private List<Product> productList;
     private Product selectedProduct;
     private Button btnCheckout;
+    private Product prod;
     
     //TODO untuk load image, full URL: http://dapuromiyago.com/gambar_produk/<nama file>
         
@@ -175,7 +176,7 @@ public class ScanResultActivity extends AppCompatActivity {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
                 alertDialogBuilder.setTitle("qrScan");
                 alertDialogBuilder
-                        .setMessage("Checkout berhasil")
+                        .setMessage("Response: "+s+"\nCheckout berhasil")
                         .setCancelable(true)
                         .setPositiveButton("OK",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
@@ -193,7 +194,7 @@ public class ScanResultActivity extends AppCompatActivity {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
                 alertDialogBuilder.setTitle("qrScan");
                 alertDialogBuilder
-                        .setMessage("Gagal melakukan checkout")
+                        .setMessage("Respons: "+s+"\nGagal melakukan checkout")
                         .setCancelable(true)
                         .setPositiveButton("OK",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {

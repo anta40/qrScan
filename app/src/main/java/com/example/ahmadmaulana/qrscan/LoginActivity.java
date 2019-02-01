@@ -1,5 +1,6 @@
 package com.example.ahmadmaulana.qrscan;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -39,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private Spinner spinner;
     SessionManager session;
     private DBHelper db;
+    ProgressDialog pdialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,9 @@ public class LoginActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
 
         db = new DBHelper(this);
+        pdialog = new ProgressDialog(LoginActivity.this);
+        pdialog.setMessage("Harap tunggu");
+        pdialog.setTitle("qrScan");
 
         session = new SessionManager(getApplicationContext());
         if (session.isLoggedIn()){
@@ -113,6 +118,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            pdialog.show();
             responseServer = "";
         }
 
@@ -158,11 +164,13 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
+            pdialog.dismiss();
+
             if (isOK(s)) {
                 try {
                     JSONObject jsObj = new JSONObject(s);
                     String token = jsObj.get("token").toString();
-                    String location_id = ""+spinner.getSelectedItemPosition();
+                    String location_id = ""+(spinner.getSelectedItemPosition()+1);
 
                     session.createLoginSession(token, location_id);
                     Intent iii = new Intent(LoginActivity.this, MainActivity.class);

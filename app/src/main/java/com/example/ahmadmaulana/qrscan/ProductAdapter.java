@@ -7,7 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -42,6 +45,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
         holder.tvHargaJual.setText("Harga: "+prod.getHargaJual());
        // holder.tvHargaBeli.setText("Harga beli: "+prod.getHargaBeli());
         holder.tvNama.setText(prod.getNama());
+
+
+        Picasso.get().load(prod.getUrl()).fit().into(holder.imgView);
     }
 
     @Override
@@ -53,6 +59,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
 
         public TextView tvNama, tvHargaJual, tvHargaBeli, tvJumlah;
         public Button btnInc, btnDec;
+        public ImageView imgView;
         MyClickListener listener;
 
         public MyViewHolder(@NonNull View itemView) {
@@ -63,6 +70,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
             tvJumlah = itemView.findViewById(R.id.tv_jumlah);
             btnInc = itemView.findViewById(R.id.btn_inc);
             btnDec = itemView.findViewById(R.id.btn_dec);
+            imgView = itemView.findViewById(R.id.image_view);
 
             btnInc.setOnClickListener(new View.OnClickListener() {
                 @Override
