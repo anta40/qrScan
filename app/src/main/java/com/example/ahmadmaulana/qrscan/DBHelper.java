@@ -82,6 +82,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public void setJumlahProduk(int id, int jumlah){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE tbl_produk SET jumlah = "+jumlah +" WHERE id_produk = "+id;
+        db.execSQL(query);
+        db.close();
+    }
+
     public void tambahJumlahProduk(int id){
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "UPDATE tbl_produk SET jumlah = jumlah + 1 WHERE id_produk = "+id;

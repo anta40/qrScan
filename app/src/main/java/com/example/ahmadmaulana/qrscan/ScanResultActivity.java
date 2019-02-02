@@ -56,11 +56,24 @@ public class ScanResultActivity extends AppCompatActivity {
         mAdapter = new ProductAdapter(this, productList, new ProductAdapter.MyClickListener() {
             @Override
             public void onIncrement(View v, int position) {
-
+                prod = productList.get(position);
+                int jumlah = prod.getJumlah();
+                jumlah += 1;
+                prod.setJumlah(jumlah);
+                db.setJumlahProduk(prod.getId(), jumlah);
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onDecrement(View v, int position) {
+                prod = productList.get(position);
+                int jumlah = prod.getJumlah();
+                if (jumlah > 0){
+                    jumlah = jumlah - 1;
+                    prod.setJumlah(jumlah);
+                    db.setJumlahProduk(prod.getId(), jumlah);
+                    mAdapter.notifyDataSetChanged();
+                }
 
             }
         });

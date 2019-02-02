@@ -26,6 +26,10 @@ public class Product {
     public String getUrl() { return url; }
     public String getDate() { return date; }
     public int getLocation() { return location; }
+
+    public void setJumlah(int jumlah){
+        this.jumlah = jumlah;
+    }
 }
 
 
