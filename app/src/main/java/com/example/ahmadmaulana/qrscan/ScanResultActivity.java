@@ -38,9 +38,7 @@ public class ScanResultActivity extends AppCompatActivity {
     private Button btnCheckout;
     private Product prod;
     
-    //TODO untuk load image, full URL: http://dapuromiyago.com/gambar_produk/<nama file>
-        
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +73,14 @@ public class ScanResultActivity extends AppCompatActivity {
                     mAdapter.notifyDataSetChanged();
                 }
 
+            }
+
+            @Override
+            public void onDelete(View v, int position) {
+                prod = productList.get(position);
+                db.hapusProduk(prod.getId());
+                productList.remove(position);
+                mAdapter.notifyDataSetChanged();
             }
         });
 

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp">
+    android:layout_height="130dp">
 
     <ImageView
         android:id="@+id/image_view"
@@ -122,14 +122,21 @@
         <Button
             android:id="@+id/btn_inc"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
             android:text="+" />
 
         <Button
             android:id="@+id/btn_dec"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
             android:text="-" />
+
+        <Button
+            android:id="@+id/btn_del"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:text="X" />
+
 
     </LinearLayout>
 

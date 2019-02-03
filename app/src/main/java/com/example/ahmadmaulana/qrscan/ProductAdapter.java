@@ -58,7 +58,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         public TextView tvNama, tvHargaJual, tvHargaBeli, tvJumlah;
-        public Button btnInc, btnDec;
+        public Button btnInc, btnDec, btnDel;
         public ImageView imgView;
         MyClickListener listener;
 
@@ -70,6 +70,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
             tvJumlah = itemView.findViewById(R.id.tv_jumlah);
             btnInc = itemView.findViewById(R.id.btn_inc);
             btnDec = itemView.findViewById(R.id.btn_dec);
+            btnDel = itemView.findViewById(R.id.btn_del);
             imgView = itemView.findViewById(R.id.image_view);
 
             btnInc.setOnClickListener(new View.OnClickListener() {
@@ -85,11 +86,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
                     clickListener.onDecrement(view, getAdapterPosition());
                 }
             });
+
+            btnDel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    clickListener.onDelete(view, getAdapterPosition());
+                }
+            });
         }
     }
 
     public interface MyClickListener {
         void onIncrement(View v, int position);
         void onDecrement(View v, int position);
+        void onDelete(View v, int position);
     }
 }
