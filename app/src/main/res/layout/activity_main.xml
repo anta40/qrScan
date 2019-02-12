@@ -14,6 +14,16 @@
         android:text="Scan QR"
         android:layout_margin="20dp"/>
 
+     <!--
+     <Button
+         android:id="@+id/btn_check"
+         android:layout_width="match_parent"
+         android:layout_height="60dp"
+         android:layout_weight="0"
+         android:text="Check"
+         android:layout_margin="20dp"/>
+     -->
+
     <!--
     <Button
         android:id="@+id/btn_info"

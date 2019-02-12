@@ -183,7 +183,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             else {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(LoginActivity.this);
-                alertDialogBuilder.setTitle("qrScan");
+                alertDialogBuilder.setTitle("Omiyago");
                 alertDialogBuilder
                         .setMessage("Not authorised")
                         .setCancelable(true)

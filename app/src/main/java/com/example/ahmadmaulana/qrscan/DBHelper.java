@@ -49,21 +49,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public long insertProduk2(Product2 prod){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        values.put("url", prod.getUrl());
-        values.put("lokasi", prod.getLokasi());
-        values.put("harga", prod.getHarga());
-
-        long id = db.insert("tbl_produk", null, values);
-        db.close();
-
-        return id;
-    }
-
-
     public long insertProduct(Product product){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -110,20 +95,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public boolean isExist2(Product2 product){
-        boolean result = false;
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT url FROM tbl_produk WHERE nama='"+product.getUrl()+"'";
-        Cursor mCursor = db.rawQuery(query, null);
-
-        if (mCursor.getCount() > 0) result = true;
-
-        mCursor.close();
-        db.close();
-
-        return result;
-    }
-
     public boolean isExist(int id){
         boolean result = false;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -136,28 +107,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return result;
-    }
-
-    public List<Product2> getAllProducts2(){
-        List<Product2> prods = new ArrayList<>();
-        String query = "SELECT * FROM tbl_produk";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor mCursor = db.rawQuery(query, null);
-
-        if (mCursor.moveToFirst()){
-            do {
-                String url = mCursor.getString(mCursor.getColumnIndex("url"));
-                String lokasi = mCursor.getString(mCursor.getColumnIndex("lokasi"));
-                int harga = mCursor.getInt(mCursor.getColumnIndex("harga"));
-                Product2 prod = new Product2(url, lokasi, harga);
-                prods.add(prod);
-
-            } while (mCursor.moveToNext());
-        }
-
-        db.close();
-
-        return prods;
     }
 
     public List<Product> getAllProducts(){

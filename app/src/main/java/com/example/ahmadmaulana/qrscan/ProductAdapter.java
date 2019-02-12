@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -58,7 +59,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         public TextView tvNama, tvHargaJual, tvHargaBeli, tvJumlah;
-        public Button btnInc, btnDec, btnDel;
+        public Button btnInc, btnDec;
+        public ImageButton btnDel;
         public ImageView imgView;
         MyClickListener listener;
 

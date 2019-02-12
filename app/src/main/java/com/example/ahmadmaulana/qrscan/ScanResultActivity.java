@@ -14,11 +14,16 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.FormBody;
@@ -35,21 +40,26 @@ public class ScanResultActivity extends AppCompatActivity {
     private DBHelper db;
     private List<Product> productList;
     private Product selectedProduct;
-    private Button btnCheckout;
+    private Button btnCheckout, btnBuyMore, btnLogout;
     private Product prod;
+    private SessionManager session;
     
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan_result);
+        setContentView(R.layout.activity_scan_result_2);
         recView = (RecyclerView) findViewById(R.id.recycler_view);
         productList = new ArrayList<>();
 
         db = new DBHelper(this);
         productList.addAll(db.getAllProducts());
 
+        session = new SessionManager(getApplicationContext());
+
         btnCheckout = (Button) findViewById(R.id.btn_checkout);
+        btnBuyMore = (Button) findViewById(R.id.btn_buy_more);
+        btnLogout = (Button) findViewById(R.id.btn_logout);
 
         mAdapter = new ProductAdapter(this, productList, new ProductAdapter.MyClickListener() {
             @Override
@@ -90,9 +100,89 @@ public class ScanResultActivity extends AppCompatActivity {
         recView.addItemDecoration(new MyDividerItemDecoration(this, LinearLayoutManager.VERTICAL, 16));
         recView.setAdapter(mAdapter);
 
+        btnBuyMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
+                alertDialogBuilder.setTitle("Omiyago");
+                alertDialogBuilder.setMessage("Keluar dari aplikasi?");
+                alertDialogBuilder.setCancelable(true);
+                alertDialogBuilder.setPositiveButton("YA",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                       session.logout();
+                    }
+                });
+                alertDialogBuilder.setNegativeButton("TIDAK",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,int id) {
+                       dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            }
+        });
+
         btnCheckout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
+                JSONArray ja = new JSONArray();
+                JSONObject jjj = new JSONObject();
+                int total_harga_jual = 0;
+                int total_harga_beli = 0;
+                HashMap<String, String> login = session.getLoginDetail();
+
+                try {
+                    for (Product prod:productList){
+                        JSONObject jo = new JSONObject();
+                        jo.put("id_produk",""+prod.getId());
+                        jo.put("qty", ""+prod.getJumlah());
+                        jo.put("harga_jual",""+prod.getHargaJual());
+                        jo.put("harga_beli",""+prod.getHargaBeli());
+
+                        total_harga_jual += prod.getHargaJual();
+                        total_harga_beli += prod.getHargaBeli();
+
+                        ja.put(jo);
+                    }
+
+                    jjj.put("tanggal_order", getCurrentDate());
+                    jjj.put("id_lokasi", login.get(SessionManager.KEY_LOCATION_ID));
+                    jjj.put("total_harga_jual", ""+total_harga_jual);
+                    jjj.put("total_harga_beli", ""+total_harga_beli);
+                    jjj.put("order_detail", ja);
+
+                    new CheckoutTask2(jjj.toString()).execute();
+
+
+                    /*
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
+                    alertDialogBuilder.setTitle("qrScan");
+                    alertDialogBuilder
+                            .setMessage("JSON: "+jjj.toString())
+                            .setCancelable(true)
+                            .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                   dialog.dismiss();
+                                }
+                            });
+
+                    AlertDialog dialog = alertDialogBuilder.create();
+                    dialog.show();
+                    */
+                }
+                catch (JSONException je){
+
+                }
+
+                /*
                 Product prod = productList.get(0);
 
                 try {
@@ -111,6 +201,7 @@ public class ScanResultActivity extends AppCompatActivity {
                 catch (JSONException je){
                     je.printStackTrace();
                 }
+                */
             }
         });
 
@@ -119,6 +210,94 @@ public class ScanResultActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         finish();
+    }
+
+    class CheckoutTask2 extends AsyncTask<String, Void, String>{
+
+        private String jsonData;
+        private String responseServer;
+
+        public CheckoutTask2(String jsonData){
+            this.jsonData = jsonData;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            responseServer = "";
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            OkHttpClient httpClient = new OkHttpClient();
+            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonData);
+            Request httpRequest = new Request.Builder()
+                    .url(URLConfig.API_ORDER)
+                    .addHeader("Accept","application/json")
+                    .addHeader("Content-Type","application/json")
+                    .addHeader("Authorization",PrefUtil.AUTH_BEARER)
+                    .post(body)
+                    .build();
+
+            Response httpResponse = null;
+
+            try {
+                httpResponse = httpClient.newCall(httpRequest).execute();
+            }
+            catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+
+            try {
+                if (httpResponse != null){
+                    responseServer = httpResponse.body().string();
+                }
+            }
+            catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+
+            return responseServer;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            if (isOK(s)){
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
+                alertDialogBuilder.setTitle("Omiyago");
+                alertDialogBuilder
+                        .setMessage("Checkout berhasil")
+                        .setCancelable(true)
+                        .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                db.clearTable();
+                                Intent iii = new Intent(ScanResultActivity.this, MainActivity.class);
+                                iii.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(iii);
+                            }
+                        });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            }
+            else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
+                alertDialogBuilder.setTitle("Omiyago");
+                alertDialogBuilder
+                        .setMessage("Gagal melakukan checkout")
+                        .setCancelable(true)
+                        .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            }
+        }
     }
 
     class CheckoutTask extends AsyncTask<String, Void, String>{
@@ -193,9 +372,9 @@ public class ScanResultActivity extends AppCompatActivity {
 
             if (isOK(s)){
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
-                alertDialogBuilder.setTitle("qrScan");
+                alertDialogBuilder.setTitle("Omiyago");
                 alertDialogBuilder
-                        .setMessage("Response: "+s+"\nCheckout berhasil")
+                        .setMessage("Checkout berhasil")
                         .setCancelable(true)
                         .setPositiveButton("OK",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
@@ -211,9 +390,9 @@ public class ScanResultActivity extends AppCompatActivity {
             }
             else {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
-                alertDialogBuilder.setTitle("qrScan");
+                alertDialogBuilder.setTitle("Omiyago");
                 alertDialogBuilder
-                        .setMessage("Respons: "+s+"\nGagal melakukan checkout")
+                        .setMessage("Gagal melakukan checkout")
                         .setCancelable(true)
                         .setPositiveButton("OK",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
@@ -230,5 +409,13 @@ public class ScanResultActivity extends AppCompatActivity {
 
     private boolean isOK(String input) {
         return input.toLowerCase().contains("\"success\"");
+    }
+
+    private String getCurrentDate(){
+        String result = "";
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        Date date = new Date();
+        result = dateFormat.format(date);
+        return result;
     }
 }

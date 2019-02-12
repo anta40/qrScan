@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnScan, btnLoginInfo, btnLogout;
+    Button btnScan, btnLoginInfo, btnLogout, btnCheck;
     TextView tv;
     SessionManager session;
     DBHelper db;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         //btnLogout = (Button) findViewById(R.id.btn_logout);
         tv = (TextView) findViewById(R.id.tv);
       //  main_img = (ImageView) findViewById(R.id.main_img);
+       // btnCheck = (Button) findViewById(R.id.btn_check);
 
         db = new DBHelper(this);
 
@@ -56,6 +57,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        /*
+        btnCheck.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
+                startActivity(iii);
+            }
+
+        });
+        */
 
         /*
         btnLoginInfo.setOnClickListener(new View.OnClickListener(){
