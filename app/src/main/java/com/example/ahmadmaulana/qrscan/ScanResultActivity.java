@@ -392,7 +392,7 @@ public class ScanResultActivity extends AppCompatActivity {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ScanResultActivity.this);
                 alertDialogBuilder.setTitle("Omiyago");
                 alertDialogBuilder
-                        .setMessage("Gagal melakukan checkout")
+                        .setMessage("Gagal melakukan checkout: "+s)
                         .setCancelable(true)
                         .setPositiveButton("OK",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {

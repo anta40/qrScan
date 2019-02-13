@@ -132,23 +132,58 @@ public class MainActivity extends AppCompatActivity {
             String scanContent = scanningResult.getContents();
             String[] strs = scanContent.split("\\n");
 
-            int id = Integer.parseInt(strs[1].replace("FN:",""));
-            String url = strs[2].replace("FN:","");
-            String nama = strs[3].replace("FN:","");
-            int hargaJual = Integer.parseInt(strs[4].replace("FN:",""));
-            int hargaBeli = Integer.parseInt(strs[5].replace("FN:",""));
+            try {
 
-            if (db.isExist(id)){
-                db.tambahJumlahProduk(id);
-            }
-            else {
-                HashMap<String, String> loginInfo = session.getLoginDetail();
-                int location = Integer.parseInt(loginInfo.get(SessionManager.KEY_LOCATION_ID));
-                db.insertProduct(new Product(id, url, nama, hargaJual, hargaBeli, 1, getCurrentDate(), location));
-            }
+                int id = Integer.parseInt(strs[1].replace("FN:",""));
+                String url = strs[2].replace("FN:","");
+                String nama = strs[3].replace("FN:","");
+                int hargaJual = Integer.parseInt(strs[4].replace("FN:",""));
+                int hargaBeli = Integer.parseInt(strs[5].replace("FN:",""));
 
-            Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
-            startActivity(iii);
+
+                if (db.isExist(id)){
+                    db.tambahJumlahProduk(id);
+                }
+                else {
+                    HashMap<String, String> loginInfo = session.getLoginDetail();
+                    int location = Integer.parseInt(loginInfo.get(SessionManager.KEY_LOCATION_ID));
+                    db.insertProduct(new Product(id, url, nama, hargaJual, hargaBeli, 1, getCurrentDate(), location));
+                }
+
+                /*
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder.setTitle("QR Content");
+                alertDialogBuilder
+                        .setMessage("ID: "+id+"\n"+"URL: "+url+"\n"+"Nama: "+nama+"\n"+"Harga jual: "+hargaJual+"\n"+"Harga beli: "+hargaBeli+"\nRaw content: "+scanContent)
+                        .setCancelable(true)
+                        .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            */
+
+                Intent iii = new Intent(MainActivity.this, ScanResultActivity.class);
+                startActivity(iii);
+            }
+            catch (NumberFormatException nfe){
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder.setTitle("Exception");
+                alertDialogBuilder
+                        .setMessage(nfe.getMessage()+"\nRaw content:" +scanContent)
+                        .setCancelable(true)
+                        .setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+            }
 
         }
         else {
